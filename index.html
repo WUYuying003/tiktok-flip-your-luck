@@ -364,6 +364,11 @@ html, body {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   overflow: hidden;
 }
+/* iOS Safari fix: hide front face after flip via z-index swap */
+.flip-card-front { z-index: 2; }
+.flip-card-back { z-index: 1; }
+.flip-card-inner.flipped .flip-card-front { z-index: 1; visibility: hidden; }
+.flip-card-inner.flipped .flip-card-back { z-index: 2; visibility: visible; }
 .flip-card-front {
   background: linear-gradient(145deg, #0A1A0A 0%, #111A11 50%, #0D150D 100%);
   border: 1.5px dashed rgba(45,107,48,0.3);
@@ -982,6 +987,12 @@ function flipCard(index) {
 
   var inner = wrappers[index].querySelector('.flip-card-inner');
   inner.classList.add('flipped');
+
+  // iOS Safari fallback: force-hide front face after animation
+  setTimeout(function() {
+    var front = inner.querySelector('.flip-card-front');
+    if (front) front.style.visibility = 'hidden';
+  }, 850);
 
   setTimeout(function() { createConfetti(); }, 800);
   setTimeout(function() { showResult(); }, 2000);
