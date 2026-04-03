@@ -148,22 +148,25 @@ html, body {
   cursor: pointer;
   transition: background var(--t-slow), border-color var(--t-slow), box-shadow var(--t-slow), transform var(--t-slow);
 }
-/* Hover → green glow */
-.card-slot.empty:hover {
+/* Hover / Touch → green glow */
+.card-slot.empty:hover,
+.card-slot.empty.touched {
   border: 1.5px solid rgba(45,107,48,0.5);
   background: linear-gradient(180deg, #0F2A12 0%, #0A1A0C 100%);
   box-shadow: 0 0 24px rgba(45,107,48,0.2), 0 4px 16px rgba(0,0,0,0.3);
   transform: translateY(-2px);
 }
 .card-slot.empty .empty-icon { color: rgba(255,255,255,0.18); transition: color var(--t-slow); }
-.card-slot.empty:hover .empty-icon { color: rgba(74,140,77,0.5); }
+.card-slot.empty:hover .empty-icon,
+.card-slot.empty.touched .empty-icon { color: rgba(74,140,77,0.5); }
 .card-slot.empty .empty-icon svg { width: 28px; height: 28px; stroke: currentColor; fill: none; stroke-width: 1.5; }
 .card-slot.empty .empty-label {
   font-size: 7px; letter-spacing: 2px; text-transform: uppercase;
   color: rgba(255,255,255,0.2); font-weight: 600;
   transition: color var(--t-slow);
 }
-.card-slot.empty:hover .empty-label { color: rgba(74,140,77,0.5); }
+.card-slot.empty:hover .empty-label,
+.card-slot.empty.touched .empty-label { color: rgba(74,140,77,0.5); }
 .card-slot.collected {
   box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 0 20px rgba(45,107,48,0.1);
 }
@@ -323,34 +326,41 @@ html, body {
   cursor: pointer; animation: cardFloat 3s ease-in-out infinite;
   transition: opacity 0.5s ease, transform 0.5s ease, filter 0.3s ease;
 }
-.flip-card-wrapper:hover {
+.flip-card-wrapper:hover,
+.flip-card-wrapper.touched {
   animation: none;
   transform: scale(1.08);
 }
-.flip-card-wrapper:hover .flip-card-front {
+.flip-card-wrapper:hover .flip-card-front,
+.flip-card-wrapper.touched .flip-card-front {
   background: linear-gradient(145deg, #0E2A10 0%, #1A3518 50%, #122E14 100%);
   border-color: rgba(46,204,113,0.5);
   box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 30px rgba(46,204,113,0.15);
 }
-.flip-card-wrapper:hover .flip-card-front::before {
+.flip-card-wrapper:hover .flip-card-front::before,
+.flip-card-wrapper.touched .flip-card-front::before {
   border-color: rgba(46,204,113,0.25);
 }
-.flip-card-wrapper:hover .flip-front-icon { color: var(--green-spotlight); }
-.flip-card-wrapper:hover .flip-front-q { color: rgba(46,204,113,0.4); }
-.flip-card-wrapper:hover .flip-front-tap { color: rgba(46,204,113,0.5); }
+.flip-card-wrapper:hover .flip-front-icon,
+.flip-card-wrapper.touched .flip-front-icon { color: var(--green-spotlight); }
+.flip-card-wrapper:hover .flip-front-q,
+.flip-card-wrapper.touched .flip-front-q { color: rgba(46,204,113,0.4); }
+.flip-card-wrapper:hover .flip-front-tap,
+.flip-card-wrapper.touched .flip-front-tap { color: rgba(46,204,113,0.5); }
 .flip-card-wrapper:nth-child(2) { animation-delay: 0.3s; }
 .flip-card-wrapper:nth-child(3) { animation-delay: 0.6s; }
 .flip-card-wrapper.dimmed { opacity: 0.2; transform: scale(0.88); pointer-events: none; filter: blur(2px); animation: none; }
 @keyframes cardFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 .flip-card-inner {
   width: 100%; height: 100%; position: relative;
-  transform-style: preserve-3d;
+  transform-style: preserve-3d; -webkit-transform-style: preserve-3d;
   transition: transform 0.8s cubic-bezier(0.4,0,0.2,1);
 }
 .flip-card-inner.flipped { transform: rotateY(180deg); }
 .flip-card-face {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  border-radius: 18px; backface-visibility: hidden;
+  border-radius: 18px;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   overflow: hidden;
 }
@@ -1205,6 +1215,20 @@ document.addEventListener('keydown', function(e) {
     }
   }
 });
+
+/* ========== TOUCH → GREEN HIGHLIGHT (MOBILE) ========== */
+document.addEventListener('touchstart', function(e) {
+  var card = e.target.closest('.card-slot.empty');
+  if (card) { card.classList.add('touched'); }
+  var flip = e.target.closest('.flip-card-wrapper');
+  if (flip && !flip.classList.contains('dimmed')) { flip.classList.add('touched'); }
+}, { passive: true });
+
+document.addEventListener('touchend', function() {
+  document.querySelectorAll('.touched').forEach(function(el) {
+    setTimeout(function() { el.classList.remove('touched'); }, 300);
+  });
+}, { passive: true });
 
 /* ========== INIT ========== */
 render();
