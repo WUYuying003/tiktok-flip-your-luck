@@ -516,28 +516,39 @@ html, body {
 
 /* Modal Buttons */
 .modal-actions { display: flex; flex-direction: column; gap: var(--sp-3); margin-bottom: var(--sp-4); }
-.btn-save {
-  width: 100%; height: 52px; border-radius: 14px; border: none;
-  background: linear-gradient(135deg, #D42B2B, #FE2C55);
-  color: #fff; font-size: 15px; font-weight: 700;
-  font-family: var(--font-sans); cursor: pointer;
-  transition: transform var(--t-fast); box-shadow: 0 4px 20px rgba(212,43,43,0.3);
-  display: flex; align-items: center; justify-content: center; gap: var(--sp-2);
-}
-.btn-save:hover { box-shadow: 0 6px 24px rgba(212,43,43,0.4); }
-.btn-save:active { transform: scale(0.97); }
-.btn-save svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 2; }
+
+/* PRIMARY CTA — Share to TikTok */
 .btn-share-modal {
-  width: 100%; height: 52px; border-radius: 14px;
-  background: transparent; border: 1px solid rgba(45,107,48,0.15);
-  color: var(--green-soft); font-size: 15px; font-weight: 700;
+  width: 100%; height: 58px; border-radius: var(--r-pill); border: none;
+  background: linear-gradient(135deg, #D42B2B 0%, #FE2C55 45%, #FF4466 100%);
+  color: #fff; font-size: 17px; font-weight: 700;
   font-family: var(--font-sans); cursor: pointer;
-  transition: background var(--t-base);
+  box-shadow: 0 0 48px rgba(254,44,85,0.4), 0 4px 20px rgba(212,43,43,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+  transition: transform var(--t-fast), box-shadow var(--t-base);
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-2);
+  position: relative; overflow: hidden;
+}
+.btn-share-modal::after {
+  content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  animation: btnShimmer 2.5s ease-in-out infinite;
+}
+.btn-share-modal:hover { box-shadow: 0 0 64px rgba(254,44,85,0.5), 0 6px 24px rgba(212,43,43,0.45), inset 0 1px 0 rgba(255,255,255,0.2); }
+.btn-share-modal:active { transform: scale(0.97); }
+.btn-share-modal svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2; }
+
+/* SECONDARY — Save Wallpaper */
+.btn-save {
+  width: 100%; height: 46px; border-radius: var(--r-pill);
+  background: transparent; border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-secondary); font-size: 14px; font-weight: 600;
+  font-family: var(--font-sans); cursor: pointer;
+  transition: background var(--t-base), border-color var(--t-base);
   display: flex; align-items: center; justify-content: center; gap: var(--sp-2);
 }
-.btn-share-modal:hover { background: rgba(45,107,48,0.05); }
-.btn-share-modal:active { background: rgba(45,107,48,0.08); }
-.btn-share-modal svg { width: 18px; height: 18px; stroke: var(--green-soft); fill: none; stroke-width: 2; }
+.btn-save:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.18); }
+.btn-save:active { transform: scale(0.97); }
+.btn-save svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
 .charity-text {
   text-align: center; font-size: 11px;
   color: var(--text-dim); line-height: 1.6; margin-bottom: var(--sp-4);
@@ -722,13 +733,13 @@ html, body {
       <div class="result-desc" id="resultDesc"></div>
       <div class="wallpaper-preview" id="wallpaperPreview"></div>
       <div class="modal-actions">
-        <button class="btn-save" onclick="saveWallpaper()">
-          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Save Wallpaper
-        </button>
         <button class="btn-share-modal" onclick="openShareSheet()">
           <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
           Share to TikTok
+        </button>
+        <button class="btn-save" onclick="saveWallpaper()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Save Wallpaper
         </button>
       </div>
       <div class="charity-text">
