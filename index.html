@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TikTok - Flip Your Luck</title>
+<!-- UI/UX Pro Max: "Classic Elegant" pairing — Playfair Display + Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* =====================================================
+   UI/UX PRO MAX DESIGN SYSTEM
+   Style: OLED Dark + Vibrant Block-based
+   Typography: Classic Elegant (Playfair Display + Inter)
+   ===================================================== */
+
+/* ========== RESET & VARIABLES ========== */
+@font-face {
+  font-family: 'TikTok Sans';
+  src: url('assets/TikTokSans-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Background — OLED Dark with Green Undertone */
+  --bg-dark: #060A06;
+  --bg-warm: #0A140A;
+  --bg-card: #111A11;
+  --bg-elevated: #141E14;
+  --bg-card-surface: #0D150D;
+  /* Brand */
+  --red-primary: #D42B2B;
+  --red-bright: #FE2C55;
+  --red-deep: #8B1A1A;
+  /* Gold */
+  --gold: #D4A853;
+  --gold-bright: #FFD700;
+  --gold-warm: #FFB347;
+  /* Green — Primary accent from Figma */
+  --green-glow: #3A8F3E;
+  --green-christmas: #2D6B30;
+  --green-soft: #4A8C4D;
+  --green-spotlight: #2ECC71;
+  --green-dark: #1A3D1A;
+  /* Accents */
+  --cyan: #25F4EE;
+  /* Text — WCAG AA+ */
+  --text-primary: #F0F5F0;
+  --text-secondary: rgba(240,245,240,0.65);
+  --text-dim: rgba(240,245,240,0.4);
+  --text-muted: rgba(240,245,240,0.25);
+  /* Typography */
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  /* Spacing 8px grid */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-6: 24px; --sp-8: 32px;
+  /* Radius */
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 24px; --r-pill: 100px;
+  /* Transition — 150-300ms */
+  --t-fast: 150ms ease; --t-base: 200ms ease; --t-slow: 300ms ease;
+  --t-spring: 300ms cubic-bezier(0.34,1.56,0.64,1);
+  /* Z-index scale */
+  --z-base: 1; --z-nav: 10; --z-flip: 20; --z-modal: 30; --z-share: 40; --z-toast: 50;
+  /* Effects — Green glow */
+  --glow-green: 0 0 80px rgba(58,143,62,0.35);
+  --glow-gold: 0 0 40px rgba(212,168,83,0.25);
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+html, body {
+  width: 100%; min-height: 100vh;
+  background: var(--bg-dark);
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+/* Focus — accessibility */
+:focus-visible {
+  outline: 2px solid var(--green-soft);
+  outline-offset: 2px;
+}
+
+/* ========== INLINE SVG ICON BASE ========== */
+.icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.icon svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ========== APP CONTAINER ========== */
+.app-container {
+  max-width: 430px; margin: 0 auto;
+  min-height: 100vh; position: relative;
+  background: #0A0E0A;
+  overflow: hidden;
+}
+.page { display: none; position: relative; z-index: var(--z-base); }
+.page.active { display: flex; flex-direction: column; }
+
+/* ========== HERO FULL IMAGE (Figma 切图顶满) ========== */
+.hero-full-image {
+  width: 100%; display: block;
+  pointer-events: none; user-select: none;
+  position: relative;
+  /*
+   * 切图 1724×5808px (4x 高清)，有效内容（标题+插画）到约 45% 高度
+   * 用 aspect-ratio 裁掉下方纯黑区域
+   * 原图比例 1724:5808 ≈ 1:3.37
+   * 只显示上方 ~45% → 目标比例 431:580 ≈ 1:1.35
+   */
+  aspect-ratio: 431 / 580;
+  overflow: hidden;
+}
+.hero-full-image img {
+  width: 100%; height: auto; display: block;
+  /* 图片自然尺寸，只显示顶部有内容的部分 */
+}
+
+/* ========== CARD GRID ========== */
+.card-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; padding: 0 20px; margin-bottom: 24px;
+}
+.card-slot {
+  aspect-ratio: 3/4; border-radius: var(--r-lg);
+  position: relative; overflow: hidden;
+  transition: transform var(--t-slow), box-shadow var(--t-slow), background var(--t-slow), border-color var(--t-slow);
+}
+.card-slot.empty {
+  border: 1.5px dashed rgba(255,255,255,0.12);
+  background: rgba(30,30,30,0.5);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 8px;
+  cursor: pointer;
+  transition: background var(--t-slow), border-color var(--t-slow), box-shadow var(--t-slow), transform var(--t-slow);
+}
+/* Hover → green glow */
+.card-slot.empty:hover {
+  border: 1.5px solid rgba(45,107,48,0.5);
+  background: linear-gradient(180deg, #0F2A12 0%, #0A1A0C 100%);
+  box-shadow: 0 0 24px rgba(45,107,48,0.2), 0 4px 16px rgba(0,0,0,0.3);
+  transform: translateY(-2px);
+}
+.card-slot.empty .empty-icon { color: rgba(255,255,255,0.18); transition: color var(--t-slow); }
+.card-slot.empty:hover .empty-icon { color: rgba(74,140,77,0.5); }
+.card-slot.empty .empty-icon svg { width: 28px; height: 28px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+.card-slot.empty .empty-label {
+  font-size: 7px; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,0.2); font-weight: 600;
+  transition: color var(--t-slow);
+}
+.card-slot.empty:hover .empty-label { color: rgba(74,140,77,0.5); }
+.card-slot.collected {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 0 20px rgba(45,107,48,0.1);
+}
+.card-slot.collected::before {
+  content: ''; position: absolute; inset: 0; border-radius: var(--r-lg);
+  border: 1px solid rgba(45,107,48,0.25);
+  pointer-events: none; z-index: 2;
+}
+.card-slot.collected .card-content {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; padding: var(--sp-4) var(--sp-2); text-align: center;
+  gap: var(--sp-2);
+}
+.card-content .card-icon { color: var(--gold); }
+.card-content .card-icon svg {
+  width: 32px; height: 32px; stroke: currentColor; fill: none; stroke-width: 1.5;
+  filter: drop-shadow(0 2px 6px rgba(212,168,83,0.3));
+}
+.card-content .card-keyword {
+  font-family: 'TikTok Sans', var(--font-sans); font-size: 12px; font-weight: 700;
+  letter-spacing: 2px; color: var(--gold);
+}
+.card-slot[data-id="1"].collected { background: linear-gradient(135deg, #0A1A0D, #1A3518, #0F2810); }
+.card-slot[data-id="2"].collected { background: linear-gradient(135deg, #0D1A0A, #1E3515, #152A0E); }
+.card-slot[data-id="3"].collected { background: linear-gradient(135deg, #141A0A, #2A3510, #1E2808); }
+.card-slot[data-id="4"].collected { background: linear-gradient(135deg, #111A0C, #253012, #1A250A); }
+.card-slot[data-id="5"].collected { background: linear-gradient(135deg, #0C1A10, #183520, #102A15); }
+.card-slot[data-id="6"].collected { background: linear-gradient(135deg, #0F1A0E, #203018, #182510); }
+
+/* ========== COLLECT BUTTON ========== */
+.collect-btn-wrap { text-align: center; padding: 16px 0; }
+.collect-btn {
+  width: min(300px, 80vw); height: 56px; border-radius: var(--r-pill); border: none;
+  background: linear-gradient(135deg, #D42B2B 0%, #FE2C55 40%, #FF4466 100%);
+  color: #fff; font-size: 16px; font-weight: 700;
+  font-family: var(--font-sans); cursor: pointer;
+  box-shadow: 0 0 50px rgba(212,43,43,0.4), 0 4px 20px rgba(212,43,43,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
+  transition: transform var(--t-fast), box-shadow var(--t-base);
+  position: relative; overflow: hidden; letter-spacing: 0.5px;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2);
+}
+.collect-btn:hover:not(:disabled) {
+  box-shadow: 0 0 70px rgba(212,43,43,0.5), 0 6px 24px rgba(212,43,43,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.collect-btn:active:not(:disabled) { transform: scale(0.96); }
+.collect-btn:disabled {
+  background: rgba(255,255,255,0.08); box-shadow: none;
+  color: rgba(255,255,255,0.25); cursor: not-allowed;
+}
+.collect-btn .btn-shimmer {
+  position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: btnShimmer 2.5s ease-in-out infinite;
+}
+.collect-btn:disabled .btn-shimmer { display: none; }
+@keyframes btnShimmer { 0%{left:-100%} 50%,100%{left:100%} }
+
+/* ========== TASKS ========== */
+.tasks-section { padding: 0 20px 40px; margin-top: 16px; }
+.tasks-container {
+  background: #161816; border-radius: var(--r-xl);
+  padding: var(--sp-4); border: 1px solid rgba(255,255,255,0.04);
+}
+.tasks-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: var(--sp-2) var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.tasks-title { font-size: 14px; font-weight: 700; }
+.tasks-reward { font-size: 12px; color: var(--green-soft); display: flex; align-items: center; gap: var(--sp-1); }
+.tasks-reward svg { width: 14px; height: 14px; stroke: var(--green-soft); fill: none; stroke-width: 2; }
+.task-row {
+  display: flex; align-items: center; padding: var(--sp-3) var(--sp-2);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  gap: var(--sp-3); cursor: pointer;
+  transition: background var(--t-base); border-radius: var(--r-sm);
+}
+.task-row:last-child { border-bottom: none; }
+.task-row:hover { background: rgba(255,255,255,0.02); }
+.task-row:active { background: rgba(255,255,255,0.04); }
+.task-icon {
+  width: 40px; height: 40px; border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.task-icon svg { width: 18px; height: 18px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.task-icon.share-icon { background: transparent; }
+.task-icon.share-icon svg { stroke: var(--red-primary); }
+.task-icon.invite-icon { background: transparent; }
+.task-icon.invite-icon svg { stroke: var(--red-bright); }
+.task-icon.support-icon { background: transparent; }
+.task-icon.support-icon svg { stroke: var(--red-primary); }
+.task-icon.send-icon { background: transparent; }
+.task-icon.send-icon svg { stroke: var(--red-bright); }
+.task-info { flex: 1; }
+.task-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.task-sub { font-size: 11px; color: var(--text-secondary); }
+.task-btn {
+  padding: var(--sp-2) var(--sp-3); border-radius: var(--r-pill);
+  background: transparent; border: none;
+  color: var(--green-soft); font-size: 13px; font-weight: 700;
+  font-family: var(--font-sans); cursor: pointer;
+  transition: color var(--t-base), transform var(--t-fast);
+  flex-shrink: 0; min-height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 2px; white-space: nowrap;
+}
+.task-btn:hover:not(.done) { opacity: 0.8; }
+.task-btn:active:not(.done) { transform: scale(0.96); }
+.task-btn.done {
+  color: var(--green-soft); cursor: default; opacity: 0.6;
+}
+
+/* ========== FLIP PAGE ========== */
+#flipPage {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  z-index: var(--z-flip); align-items: center; justify-content: center;
+  background: #080A08;
+  opacity: 0; transition: opacity 0.4s ease; pointer-events: none;
+}
+#flipPage.active { opacity: 1; pointer-events: auto; }
+#flipPage::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at 50% 30%, rgba(46,204,113,0.18) 0%, rgba(58,143,62,0.1) 30%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+#flipPage::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at 50% 70%, rgba(45,107,48,0.1) 0%, transparent 50%);
+  pointer-events: none; z-index: 0;
+}
+.flip-close {
+  position: absolute; top: var(--sp-4); right: var(--sp-4);
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.06); border: none;
+  border-radius: var(--r-md); color: var(--text-secondary); cursor: pointer;
+  transition: background var(--t-fast); z-index: 5;
+}
+.flip-close:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+.flip-close svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
+.flip-header { text-align: center; margin-bottom: 40px; position: relative; z-index: 1; }
+.flip-title {
+  font-family: 'TikTok Sans', var(--font-sans); font-size: clamp(24px,7vw,30px); font-weight: 700;
+  margin-bottom: var(--sp-2);
+  background: linear-gradient(135deg, #fff 0%, #FFD700 60%, #D4A853 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.flip-subtitle { font-size: 13px; color: var(--text-dim); }
+.flip-cards-row {
+  display: flex; gap: 16px; justify-content: center;
+  perspective: 1000px; margin-bottom: 40px;
+  position: relative; z-index: 1;
+}
+.flip-card-wrapper {
+  width: clamp(110px,26vw,170px); height: clamp(160px,37vw,240px);
+  cursor: pointer; animation: cardFloat 3s ease-in-out infinite;
+  transition: opacity 0.5s ease, transform 0.5s ease, filter 0.3s ease;
+}
+.flip-card-wrapper:hover {
+  animation: none;
+  transform: scale(1.08);
+}
+.flip-card-wrapper:hover .flip-card-front {
+  background: linear-gradient(145deg, #0E2A10 0%, #1A3518 50%, #122E14 100%);
+  border-color: rgba(46,204,113,0.5);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 30px rgba(46,204,113,0.15);
+}
+.flip-card-wrapper:hover .flip-card-front::before {
+  border-color: rgba(46,204,113,0.25);
+}
+.flip-card-wrapper:hover .flip-front-icon { color: var(--green-spotlight); }
+.flip-card-wrapper:hover .flip-front-q { color: rgba(46,204,113,0.4); }
+.flip-card-wrapper:hover .flip-front-tap { color: rgba(46,204,113,0.5); }
+.flip-card-wrapper:nth-child(2) { animation-delay: 0.3s; }
+.flip-card-wrapper:nth-child(3) { animation-delay: 0.6s; }
+.flip-card-wrapper.dimmed { opacity: 0.2; transform: scale(0.88); pointer-events: none; filter: blur(2px); animation: none; }
+@keyframes cardFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.flip-card-inner {
+  width: 100%; height: 100%; position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.flip-card-inner.flipped { transform: rotateY(180deg); }
+.flip-card-face {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  border-radius: 18px; backface-visibility: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.flip-card-front {
+  background: linear-gradient(145deg, #0A1A0A 0%, #111A11 50%, #0D150D 100%);
+  border: 1.5px dashed rgba(45,107,48,0.3);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  transition: background var(--t-slow), border-color var(--t-slow), box-shadow var(--t-slow);
+}
+.flip-card-front::before {
+  content: ''; position: absolute; inset: 8px; border-radius: 12px;
+  border: 1px dashed rgba(45,107,48,0.15); pointer-events: none;
+}
+.flip-card-front::after {
+  content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(46,204,113,0.04), transparent);
+  animation: shimmer 3s ease-in-out infinite; transform: skewX(-15deg);
+}
+@keyframes shimmer { 0%{left:-100%} 50%,100%{left:150%} }
+.flip-front-icon { position: relative; z-index: 1; color: var(--green-soft); margin-bottom: var(--sp-4); transition: color var(--t-slow); }
+.flip-front-icon svg { width: 44px; height: 44px; stroke: currentColor; fill: none; stroke-width: 1.5; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+.flip-front-q {
+  font-size: 28px; font-weight: 700; color: rgba(46,204,113,0.2);
+  margin-bottom: 16px; position: relative; z-index: 1; font-family: 'TikTok Sans', var(--font-sans);
+  transition: color var(--t-slow);
+}
+.flip-front-tap {
+  font-size: 9px; text-transform: uppercase; letter-spacing: 3px;
+  color: rgba(46,204,113,0.3); position: relative; z-index: 1;
+  transition: color var(--t-slow);
+}
+.flip-card-back {
+  transform: rotateY(180deg);
+  border: 1px solid rgba(212,168,83,0.2);
+  text-align: center; padding: 16px 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.flip-back-icon { margin-bottom: var(--sp-3); color: var(--gold); }
+.flip-back-icon svg { width: 36px; height: 36px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+.flip-back-keyword {
+  font-family: 'TikTok Sans', var(--font-sans); font-size: 15px; font-weight: 700;
+  letter-spacing: 2px; margin-bottom: 6px; color: var(--gold);
+}
+.flip-back-desc { font-size: 10px; color: var(--text-secondary); line-height: 1.5; }
+.flip-footer {
+  text-align: center; font-size: 13px; color: rgba(46,204,113,0.3); letter-spacing: 0.5px;
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-2);
+  position: relative; z-index: 1;
+}
+.flip-footer svg { width: 14px; height: 14px; stroke: rgba(46,204,113,0.3); fill: none; stroke-width: 2; }
+
+/* ========== SNOWFLAKES ========== */
+.snowflakes {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: calc(var(--z-flip) + 1); overflow: hidden;
+}
+.snowflake {
+  position: absolute; top: -20px; opacity: 0.4;
+  animation: snowfall linear infinite; user-select: none;
+}
+.snowflake svg { stroke: #fff; fill: none; stroke-width: 1.5; }
+@keyframes snowfall {
+  0%{transform:translateY(-20px) translateX(0) rotate(0deg); opacity:0.4}
+  25%{transform:translateY(25vh) translateX(15px) rotate(90deg)}
+  50%{transform:translateY(50vh) translateX(-10px) rotate(180deg); opacity:0.2}
+  75%{transform:translateY(75vh) translateX(20px) rotate(270deg)}
+  100%{transform:translateY(105vh) translateX(-5px) rotate(360deg); opacity:0}
+}
+
+/* ========== RESULT MODAL ========== */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  z-index: var(--z-modal); display: none; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.active { display: flex; }
+.modal-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.modal-content {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 390px;
+  background: linear-gradient(180deg, #111A11 0%, #0A140A 100%);
+  border-radius: var(--r-xl); padding: var(--sp-6) 28px 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(45,107,48,0.08);
+  border: 1px solid rgba(45,107,48,0.1);
+  max-height: 90vh; overflow-y: auto;
+  transform: translateY(40px); opacity: 0;
+  transition: transform 0.4s var(--t-spring), opacity var(--t-slow);
+}
+.modal-overlay.active .modal-content { transform: translateY(0); opacity: 1; }
+.modal-close {
+  position: absolute; top: 12px; right: 12px;
+  width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.04); border: none; border-radius: var(--r-md);
+  color: var(--text-dim); cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.modal-close:hover { background: rgba(255,255,255,0.08); color: var(--text-secondary); }
+.modal-close svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+.result-icon { text-align: center; margin: var(--sp-2) 0 var(--sp-3); color: var(--gold); }
+.result-icon svg { width: 52px; height: 52px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+.result-keyword {
+  text-align: center; font-family: 'TikTok Sans', var(--font-sans);
+  font-size: clamp(24px,7vw,30px); font-weight: 700; letter-spacing: 3px;
+  margin-bottom: var(--sp-2);
+  background: linear-gradient(135deg, #FFD700, #D4A853);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.result-desc {
+  text-align: center; font-size: 14px;
+  color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px;
+}
+
+/* Wallpaper Preview */
+.wallpaper-preview {
+  width: 200px; height: 356px; margin: 0 auto 20px;
+  border-radius: var(--r-lg); position: relative; overflow: hidden;
+  border: 1px solid rgba(45,107,48,0.12);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.wallpaper-inner {
+  width: 100%; height: 100%; display: flex;
+  flex-direction: column; align-items: center; justify-content: center;
+  position: relative;
+}
+.wallpaper-brand {
+  position: absolute; top: 16px;
+  font-size: 8px; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(240,245,240,0.35);
+}
+.wallpaper-icon { margin-bottom: var(--sp-3); }
+.wallpaper-icon svg { width: 48px; height: 48px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+.wallpaper-keyword {
+  font-family: 'TikTok Sans', var(--font-sans); font-size: 20px; font-weight: 700; letter-spacing: 4px;
+}
+.wallpaper-bottom {
+  position: absolute; bottom: 16px;
+  font-size: 7px; letter-spacing: 3px;
+  text-transform: uppercase; color: rgba(240,245,240,0.25);
+}
+.wallpaper-particle {
+  position: absolute; border-radius: 50%; opacity: 0.15; pointer-events: none;
+}
+
+/* Modal Buttons */
+.modal-actions { display: flex; flex-direction: column; gap: var(--sp-3); margin-bottom: var(--sp-4); }
+.btn-save {
+  width: 100%; height: 52px; border-radius: 14px; border: none;
+  background: linear-gradient(135deg, #D42B2B, #FE2C55);
+  color: #fff; font-size: 15px; font-weight: 700;
+  font-family: var(--font-sans); cursor: pointer;
+  transition: transform var(--t-fast); box-shadow: 0 4px 20px rgba(212,43,43,0.3);
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-2);
+}
+.btn-save:hover { box-shadow: 0 6px 24px rgba(212,43,43,0.4); }
+.btn-save:active { transform: scale(0.97); }
+.btn-save svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 2; }
+.btn-share-modal {
+  width: 100%; height: 52px; border-radius: 14px;
+  background: transparent; border: 1px solid rgba(45,107,48,0.15);
+  color: var(--green-soft); font-size: 15px; font-weight: 700;
+  font-family: var(--font-sans); cursor: pointer;
+  transition: background var(--t-base);
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-2);
+}
+.btn-share-modal:hover { background: rgba(45,107,48,0.05); }
+.btn-share-modal:active { background: rgba(45,107,48,0.08); }
+.btn-share-modal svg { width: 18px; height: 18px; stroke: var(--green-soft); fill: none; stroke-width: 2; }
+.charity-text {
+  text-align: center; font-size: 11px;
+  color: var(--text-dim); line-height: 1.6; margin-bottom: var(--sp-4);
+}
+.btn-ok {
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto; width: 200px; height: 48px; border-radius: var(--r-pill);
+  background: rgba(45,107,48,0.06); border: 1px solid rgba(45,107,48,0.12);
+  color: var(--green-soft); font-size: 14px; font-weight: 700;
+  font-family: var(--font-sans); cursor: pointer;
+  transition: background var(--t-base);
+}
+.btn-ok:hover { background: rgba(45,107,48,0.1); }
+.btn-ok:active { background: rgba(45,107,48,0.14); }
+
+/* ========== SHARE SHEET ========== */
+.share-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  z-index: var(--z-share); display: none;
+}
+.share-overlay.active { display: block; }
+.share-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.5); }
+.share-sheet {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--bg-elevated); border-radius: var(--r-xl) var(--r-xl) 0 0;
+  padding: var(--sp-3) var(--sp-8) 40px; text-align: center;
+  transform: translateY(100%);
+  transition: transform 0.35s var(--t-spring);
+  border-top: 1px solid rgba(45,107,48,0.08);
+}
+.share-overlay.active .share-sheet { transform: translateY(0); }
+.share-handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: rgba(240,245,240,0.12); margin: 0 auto 20px;
+}
+.share-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.share-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: var(--sp-6); }
+.share-icons { display: flex; justify-content: center; gap: var(--sp-6); margin-bottom: var(--sp-6); }
+.share-icon-item {
+  display: flex; flex-direction: column; align-items: center; gap: var(--sp-2);
+  cursor: pointer;
+}
+.share-icon-circle {
+  width: 56px; height: 56px; border-radius: var(--r-lg);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform var(--t-fast);
+}
+.share-icon-circle:active { transform: scale(0.92); }
+.share-icon-circle svg { width: 24px; height: 24px; stroke: #fff; fill: none; stroke-width: 2; }
+.share-icon-label { font-size: 11px; color: var(--text-secondary); }
+.share-cancel {
+  width: 200px; height: 48px; border-radius: var(--r-pill);
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  color: #fff; font-size: 14px; font-weight: 700;
+  font-family: var(--font-sans); cursor: pointer;
+  transition: background var(--t-base);
+}
+.share-cancel:hover { background: rgba(255,255,255,0.08); }
+
+/* ========== TOAST ========== */
+.toast {
+  position: fixed; top: 60px; left: 50%; transform: translateX(-50%) translateY(-80px);
+  z-index: var(--z-toast); padding: var(--sp-3) var(--sp-6); border-radius: var(--r-pill);
+  background: rgba(17,26,17,0.95); border: 1px solid rgba(45,107,48,0.25);
+  color: var(--green-soft); font-size: 13px; font-weight: 600;
+  font-family: var(--font-sans);
+  opacity: 0; transition: transform var(--t-slow), opacity var(--t-slow);
+  pointer-events: none; white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  display: flex; align-items: center; gap: var(--sp-2);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast svg { width: 16px; height: 16px; stroke: var(--green-soft); fill: none; stroke-width: 2; }
+
+/* ========== CONFETTI ========== */
+.confetti-container {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: calc(var(--z-flip) + 2); overflow: hidden;
+}
+.confetti-piece {
+  position: absolute; top: -10px;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  0%{transform:translateY(-10px) rotate(0deg); opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg); opacity:0}
+}
+
+/* ========== CONGRATS ========== */
+.congrats-banner {
+  text-align: center; padding: 20px;
+  background: linear-gradient(135deg, rgba(45,107,48,0.08), rgba(46,204,113,0.06));
+  border-radius: var(--r-lg); margin: 0 20px 24px;
+  border: 1px solid rgba(45,107,48,0.12);
+}
+.congrats-banner h3 {
+  font-family: 'TikTok Sans', var(--font-sans); font-size: 20px;
+  color: var(--gold); margin-bottom: 4px;
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-2);
+}
+.congrats-banner h3 svg { width: 22px; height: 22px; stroke: var(--gold); fill: none; stroke-width: 2; }
+.congrats-banner p { font-size: 12px; color: var(--text-secondary); }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 380px) {
+  .card-grid { padding: 0 16px; gap: 8px; }
+  .flip-cards-row { gap: 10px; }
+  .collect-btn { height: 52px; font-size: 15px; }
+  .tasks-section { padding: 0 var(--sp-4) 40px; margin-top: 16px; }
+  .modal-content { padding: 20px; margin: 0 8px; }
+  .hero-section { min-height: 420px; }
+  .title-main { font-size: clamp(26px,8vw,34px); }
+}
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- ==================== COLLECTION PAGE ==================== -->
+  <div id="collectionPage" class="page active" role="main">
+    <!-- Hero Full Image — Figma 切图顶满（包含标题、插画、背景） -->
+    <div class="hero-full-image" aria-label="Flip Your Luck - Christmas 2026 - $10,000,000 Prize Pool">
+      <img src="assets/hero-full.png" alt="TikTok Flip Your Luck Christmas 2026" />
+    </div>
+
+    <!-- Content below hero — overlaps onto the black area of the hero image -->
+    <div class="content-below-hero">
+      <!-- Collect Button -->
+      <div class="collect-btn-wrap">
+        <button class="collect-btn" id="collectBtn" onclick="openFlipPage()" aria-label="Collect a card">
+          <span class="btn-shimmer"></span>
+          <span id="collectBtnText">Collect (1)</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+
+      <!-- Card Grid -->
+      <div class="card-grid" id="cardGrid" role="list" aria-label="Lucky card collection"></div>
+
+      <!-- Congrats Banner -->
+      <div class="congrats-banner" id="congratsBanner" style="display:none;" role="alert">
+        <h3>
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="currentColor" fill="none" stroke-width="1.5"/><path d="M9 12l2 2 4-4" stroke="currentColor" fill="none" stroke-width="2"/></svg>
+          Congratulations!
+        </h3>
+        <p>All cards collected! You're in the draw for the grand prize.</p>
+      </div>
+
+      <!-- Tasks Section -->
+      <section class="tasks-section" id="tasksSection" aria-label="Tasks to earn more chances"></section>
+    </div>
+  </div>
+
+  <!-- ==================== FLIP PAGE ==================== -->
+  <div id="flipPage" class="page" role="dialog" aria-label="Flip a card" aria-modal="true">
+    <div class="snowflakes" id="snowflakes" aria-hidden="true"></div>
+    <button class="flip-close" onclick="closeFlipPage()" aria-label="Close">
+      <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="flip-header">
+      <h2 class="flip-title">Choose a card</h2>
+      <p class="flip-subtitle">Tap one to reveal your Christmas luck</p>
+    </div>
+    <div class="flip-cards-row" id="flipCardsRow" role="listbox" aria-label="Cards to flip"></div>
+    <div class="flip-footer">
+      <svg viewBox="0 0 24 24"><path d="M12 2l1.09 3.26L16.36 6l-2.6 2.09L14.54 12 12 9.87 9.46 12l.78-3.91L7.64 6l3.27-.74z"/></svg>
+      Every card is a winner
+      <svg viewBox="0 0 24 24"><path d="M12 2l1.09 3.26L16.36 6l-2.6 2.09L14.54 12 12 9.87 9.46 12l.78-3.91L7.64 6l3.27-.74z"/></svg>
+    </div>
+  </div>
+
+  <!-- ==================== RESULT MODAL ==================== -->
+  <div class="modal-overlay" id="resultModal" role="dialog" aria-label="Card result" aria-modal="true">
+    <div class="modal-backdrop" onclick="closeResult()"></div>
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeResult()" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="result-icon" id="resultIcon"></div>
+      <div class="result-keyword" id="resultKeyword"></div>
+      <div class="result-desc" id="resultDesc"></div>
+      <div class="wallpaper-preview" id="wallpaperPreview"></div>
+      <div class="modal-actions">
+        <button class="btn-save" onclick="saveWallpaper()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Save Wallpaper
+        </button>
+        <button class="btn-share-modal" onclick="openShareSheet()">
+          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share to TikTok
+        </button>
+      </div>
+      <div class="charity-text">
+        To thank you for your kindness, TikTok will donate $10 to charity in your name after collecting all cards.
+      </div>
+      <button class="btn-ok" onclick="closeResult()">OK</button>
+    </div>
+  </div>
+
+  <!-- ==================== SHARE SHEET ==================== -->
+  <div class="share-overlay" id="shareOverlay" role="dialog" aria-label="Share" aria-modal="true">
+    <div class="share-bg" onclick="closeShareSheet()"></div>
+    <div class="share-sheet">
+      <div class="share-handle"></div>
+      <div class="share-title">Share your luck with friends</div>
+      <div class="share-subtitle">Spread the Christmas joy</div>
+      <div class="share-icons">
+        <div class="share-icon-item" onclick="handleShareClick('TikTok')" role="button" tabindex="0" aria-label="Share to TikTok">
+          <div class="share-icon-circle" style="background:#010101;">
+            <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+          <span class="share-icon-label">TikTok</span>
+        </div>
+        <div class="share-icon-item" onclick="handleShareClick('Instagram')" role="button" tabindex="0" aria-label="Share to Instagram">
+          <div class="share-icon-circle" style="background:linear-gradient(135deg,#833AB4,#FD1D1D,#FCAF45);">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </div>
+          <span class="share-icon-label">Instagram</span>
+        </div>
+        <div class="share-icon-item" onclick="handleShareClick('Twitter')" role="button" tabindex="0" aria-label="Share to Twitter">
+          <div class="share-icon-circle" style="background:#1DA1F2;">
+            <svg viewBox="0 0 24 24"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+          </div>
+          <span class="share-icon-label">Twitter</span>
+        </div>
+        <div class="share-icon-item" onclick="handleShareClick('Copy')" role="button" tabindex="0" aria-label="Copy link">
+          <div class="share-icon-circle" style="background:rgba(255,255,255,0.08);">
+            <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+          </div>
+          <span class="share-icon-label">Copy Link</span>
+        </div>
+      </div>
+      <button class="share-cancel" onclick="closeShareSheet()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Confetti container -->
+  <div class="confetti-container" id="confettiContainer" aria-hidden="true"></div>
+</div>
+
+<script>
+/* ========== SVG ICON LIBRARY — replaces all emoji icons ========== */
+const SVG_ICONS = {
+  sparkle: '<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>',
+  star: '<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  snowflake: '<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/><line x1="19.07" y1="4.93" x2="4.93" y2="19.07"/></svg>',
+  gift: '<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>',
+  bell: '<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+  // Flip page card fronts
+  tree: '<svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L4 14h5l-3 8h12l-3-8h5z"/></svg>',
+  starBig: '<svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  giftBig: '<svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>',
+  // Check
+  check: '<svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>',
+  // Question
+  question: '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  // Task icons
+  share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>',
+  users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
+  handshake: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5.4 5.4 0 00-7.65 0l-.77.78-.77-.78a5.4 5.4 0 00-7.65 0A5.4 5.4 0 003.58 12.23L12 20.66l8.42-8.42a5.4 5.4 0 000-7.66z"/></svg>',
+  send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
+  // Toast
+  checkCircle: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+  // Lock
+  lock: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>',
+  // Arrow right for tasks
+  arrowRight: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>'
+};
+
+/* ========== DATA ========== */
+const LUCKY_CARDS = [
+  { id: 1, keyword: "PROSPERITY", icon: "sparkle", description: "Abundance flows your way in 2026",
+    wallpaper: { gradient: "linear-gradient(135deg, #0A1A0D, #1A3518, #0F2810)", accent: "#FFD700" }},
+  { id: 2, keyword: "ADVENTURE", icon: "star", description: "New horizons await your journey",
+    wallpaper: { gradient: "linear-gradient(135deg, #0D1A0A, #1E3515, #152A0E)", accent: "#C8E6C9" }},
+  { id: 3, keyword: "SERENITY", icon: "snowflake", description: "Inner peace guides every step",
+    wallpaper: { gradient: "linear-gradient(135deg, #141A0A, #2A3510, #1E2808)", accent: "#81C784" }},
+  { id: 4, keyword: "FORTUNE", icon: "gift", description: "Luck is always on your side",
+    wallpaper: { gradient: "linear-gradient(135deg, #111A0C, #253012, #1A250A)", accent: "#A5D6A7" }},
+  { id: 5, keyword: "HARMONY", icon: "bell", description: "Balance brings you endless joy",
+    wallpaper: { gradient: "linear-gradient(135deg, #0C1A10, #183520, #102A15)", accent: "#66BB6A" }},
+  { id: 6, keyword: "RADIANCE", icon: "sun", description: "Your light inspires the world",
+    wallpaper: { gradient: "linear-gradient(135deg, #0F1A0E, #203018, #182510)", accent: "#AED581" }}
+];
+
+const FLIP_ICONS = ["tree", "starBig", "giftBig"];
+
+/* ========== STATE ========== */
+const state = {
+  collectedCards: [],
+  chances: 1,
+  currentResult: null,
+  flipping: false,
+  tasks: {
+    share: { current: 0, max: 1, chancesReward: 1 },
+    invite: { current: 0, max: 1, chancesReward: 5 },
+    support: { current: 0, max: 5, chancesReward: 1 },
+    send: { current: 0, max: 5, chancesReward: 0 }
+  }
+};
+
+/* ========== TASK CONFIG ========== */
+const TASK_CONFIG = [
+  { type: 'share', iconImg: 'assets/task-icon-1.png', iconClass: 'share-icon',
+    name: 'Share the event', sub: 'Get 1 chance', btnText: 'Share >', btnColor: '#4A8C4D' },
+  { type: 'invite', iconImg: 'assets/task-icon-2.png', iconClass: 'invite-icon',
+    name: 'Invite new users', sub: 'Get 1 chance', btnText: 'Invite >', btnColor: '#4A8C4D' },
+  { type: 'support', iconImg: 'assets/task-icon-3.png', iconClass: 'support-icon',
+    name: 'Invite friends to support', sub: 'Get 1 chance', btnText: 'Invite >', btnColor: '#4A8C4D' },
+  { type: 'send', iconImg: 'assets/task-icon-4.png', iconClass: 'send-icon',
+    name: 'Send friend card', sub: 'Get 1 chance', btnText: 'Share >', btnColor: '#4A8C4D' }
+];
+
+/* ========== RENDER ========== */
+function renderCardGrid() {
+  const grid = document.getElementById('cardGrid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= 6; i++) {
+    const card = LUCKY_CARDS.find(c => c.id === i);
+    const isCollected = state.collectedCards.includes(i);
+    const slot = document.createElement('div');
+    slot.className = 'card-slot ' + (isCollected ? 'collected' : 'empty');
+    slot.setAttribute('data-id', i);
+    slot.setAttribute('role', 'listitem');
+    slot.setAttribute('aria-label', isCollected ? card.keyword + ' - Collected' : 'Empty card slot ' + i);
+    if (isCollected) {
+      slot.innerHTML =
+        '<div class="card-content">' +
+          '<span class="card-icon">' + SVG_ICONS[card.icon] + '</span>' +
+          '<span class="card-keyword">' + card.keyword + '</span>' +
+        '</div>';
+    } else {
+      slot.innerHTML =
+        '<span class="empty-icon">' + SVG_ICONS.question + '</span>' +
+        '<span class="empty-label">TAP TO FLIP</span>';
+    }
+    grid.appendChild(slot);
+  }
+  document.getElementById('congratsBanner').style.display =
+    state.collectedCards.length === 6 ? 'block' : 'none';
+}
+
+function renderCollectBtn() {
+  const btn = document.getElementById('collectBtn');
+  const txt = document.getElementById('collectBtnText');
+  if (state.collectedCards.length >= 6) {
+    btn.disabled = true;
+    txt.textContent = 'All cards collected!';
+  } else if (state.chances <= 0) {
+    btn.disabled = true;
+    txt.textContent = 'No chances left';
+  } else {
+    btn.disabled = false;
+    txt.textContent = 'Collect (' + state.chances + ')';
+  }
+}
+
+function renderTasks() {
+  const section = document.getElementById('tasksSection');
+  var html =
+    '<div class="tasks-container">' +
+    '<div class="tasks-header">' +
+      '<span class="tasks-title">More ways to collect</span>' +
+    '</div>';
+
+  TASK_CONFIG.forEach(function(task) {
+    var t = state.tasks[task.type];
+    var isDone = t.current >= t.max;
+    var counterText = ' (' + t.current + '/' + t.max + ')';
+    html +=
+      '<div class="task-row" onclick="handleTask(\'' + task.type + '\')" role="button" tabindex="0" aria-label="' + task.name + '">' +
+        '<div class="task-icon ' + task.iconClass + '"><img src="' + task.iconImg + '" alt="" style="width:22px;height:22px;" /></div>' +
+        '<div class="task-info">' +
+          '<div class="task-name">' + task.name + counterText + '</div>' +
+          '<div class="task-sub">' + task.sub + '</div>' +
+        '</div>' +
+        '<button class="task-btn' + (isDone ? ' done' : '') + '" style="color:' + (task.btnColor || 'var(--green-soft)') + '" tabindex="-1">' +
+          (isDone ? SVG_ICONS.check + ' Done' : task.btnText) +
+        '</button>' +
+      '</div>';
+  });
+
+  html += '</div>';
+  section.innerHTML = html;
+}
+
+function render() {
+  renderCardGrid();
+  renderCollectBtn();
+  renderTasks();
+}
+
+/* ========== FLIP PAGE ========== */
+function openFlipPage() {
+  if (state.chances <= 0 || state.collectedCards.length >= 6) return;
+
+  var uncollected = LUCKY_CARDS.filter(function(c) { return !state.collectedCards.includes(c.id); });
+  state.currentResult = uncollected[Math.floor(Math.random() * uncollected.length)];
+
+  var row = document.getElementById('flipCardsRow');
+  row.innerHTML = '';
+  for (var i = 0; i < 3; i++) {
+    var wrapper = document.createElement('div');
+    wrapper.className = 'flip-card-wrapper';
+    wrapper.setAttribute('role', 'option');
+    wrapper.setAttribute('aria-label', 'Card ' + (i + 1) + ' - tap to flip');
+    wrapper.setAttribute('tabindex', '0');
+    (function(idx) {
+      wrapper.onclick = function() { flipCard(idx); };
+      wrapper.onkeydown = function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flipCard(idx); } };
+    })(i);
+    var card = state.currentResult;
+    wrapper.innerHTML =
+      '<div class="flip-card-inner">' +
+        '<div class="flip-card-face flip-card-front">' +
+          '<span class="flip-front-icon">' + SVG_ICONS[FLIP_ICONS[i]] + '</span>' +
+          '<span class="flip-front-q">?</span>' +
+          '<span class="flip-front-tap">TAP TO FLIP</span>' +
+        '</div>' +
+        '<div class="flip-card-face flip-card-back" style="background:' + card.wallpaper.gradient + ';">' +
+          '<span class="flip-back-icon" style="color:' + card.wallpaper.accent + ';">' + SVG_ICONS[card.icon] + '</span>' +
+          '<span class="flip-back-keyword">' + card.keyword + '</span>' +
+          '<span class="flip-back-desc">' + card.description + '</span>' +
+        '</div>' +
+      '</div>';
+    row.appendChild(wrapper);
+  }
+
+  state.flipping = false;
+  createSnowflakes();
+  document.getElementById('flipPage').classList.add('active');
+}
+
+function flipCard(index) {
+  if (state.flipping) return;
+  state.flipping = true;
+
+  var wrappers = document.querySelectorAll('.flip-card-wrapper');
+  wrappers.forEach(function(w, i) {
+    if (i !== index) w.classList.add('dimmed');
+  });
+
+  var inner = wrappers[index].querySelector('.flip-card-inner');
+  inner.classList.add('flipped');
+
+  setTimeout(function() { createConfetti(); }, 800);
+  setTimeout(function() { showResult(); }, 2000);
+}
+
+function closeFlipPage() {
+  document.getElementById('flipPage').classList.remove('active');
+  document.getElementById('snowflakes').innerHTML = '';
+}
+
+/* ========== RESULT MODAL ========== */
+function showResult() {
+  var card = state.currentResult;
+  document.getElementById('resultIcon').innerHTML = '<span style="color:' + card.wallpaper.accent + ';">' + SVG_ICONS[card.icon].replace(/width="\d+"/, 'width="52"').replace(/height="\d+"/, 'height="52"') + '</span>';
+  document.getElementById('resultKeyword').textContent = card.keyword;
+  document.getElementById('resultDesc').textContent = card.description;
+
+  var preview = document.getElementById('wallpaperPreview');
+  var particles = '';
+  for (var i = 0; i < 12; i++) {
+    var size = 20 + Math.random() * 60;
+    var x = Math.random() * 100;
+    var y = Math.random() * 100;
+    var opacity = 0.05 + Math.random() * 0.1;
+    particles += '<div class="wallpaper-particle" style="' +
+      'width:' + size + 'px;height:' + size + 'px;' +
+      'left:' + x + '%;top:' + y + '%;' +
+      'background:' + card.wallpaper.accent + ';' +
+      'opacity:' + opacity + ';' +
+      'filter:blur(' + (size/3) + 'px);' +
+    '"></div>';
+  }
+  preview.innerHTML =
+    '<div class="wallpaper-inner" style="background:' + card.wallpaper.gradient + ';">' +
+      particles +
+      '<span class="wallpaper-brand">TikTok \u00D7 Christmas 2026</span>' +
+      '<span class="wallpaper-icon" style="color:' + card.wallpaper.accent + ';">' + SVG_ICONS[card.icon].replace(/width="\d+"/, 'width="48"').replace(/height="\d+"/, 'height="48"') + '</span>' +
+      '<span class="wallpaper-keyword" style="color:' + card.wallpaper.accent + ';">' + card.keyword + '</span>' +
+      '<span class="wallpaper-bottom">Merry Christmas</span>' +
+    '</div>';
+
+  document.getElementById('resultModal').classList.add('active');
+}
+
+function closeResult() {
+  document.getElementById('resultModal').classList.remove('active');
+  closeFlipPage();
+  if (state.currentResult && !state.collectedCards.includes(state.currentResult.id)) {
+    state.collectedCards.push(state.currentResult.id);
+    state.chances = Math.max(0, state.chances - 1);
+    state.currentResult = null;
+  }
+  render();
+}
+
+/* ========== WALLPAPER SAVE (Canvas) ========== */
+function saveWallpaper() {
+  var card = state.currentResult;
+  if (!card) return;
+
+  var canvas = document.createElement('canvas');
+  canvas.width = 1080; canvas.height = 1920;
+  var ctx = canvas.getContext('2d');
+
+  var gradientColors = {
+    1: ['#0A1A0D','#1A3518','#0F2810'],
+    2: ['#0D1A0A','#1E3515','#152A0E'],
+    3: ['#141A0A','#2A3510','#1E2808'],
+    4: ['#111A0C','#253012','#1A250A'],
+    5: ['#0C1A10','#183520','#102A15'],
+    6: ['#0F1A0E','#203018','#182510']
+  };
+  var colors = gradientColors[card.id];
+  var grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  grad.addColorStop(0, colors[0]);
+  grad.addColorStop(0.5, colors[1]);
+  grad.addColorStop(1, colors[2]);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  for (var i = 0; i < 15; i++) {
+    var x = Math.random() * canvas.width;
+    var y = Math.random() * canvas.height;
+    var r = 30 + Math.random() * 80;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = card.wallpaper.accent;
+    ctx.globalAlpha = 0.04 + Math.random() * 0.06;
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.font = '24px "Inter", sans-serif';
+  ctx.fillStyle = 'rgba(240,245,240,0.35)';
+  ctx.textAlign = 'center';
+  ctx.fillText('TikTok \u00D7 Christmas 2026', canvas.width / 2, 100);
+
+  // Draw a simple star icon instead of emoji
+  ctx.save();
+  ctx.translate(canvas.width / 2, canvas.height / 2 - 80);
+  ctx.strokeStyle = card.wallpaper.accent;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  for (var j = 0; j < 5; j++) {
+    var angle = (j * 4 * Math.PI / 5) - Math.PI / 2;
+    var px = Math.cos(angle) * 50;
+    var py = Math.sin(angle) * 50;
+    if (j === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.font = 'bold 64px "TikTok Sans", "Inter", sans-serif';
+  ctx.fillStyle = card.wallpaper.accent;
+  ctx.fillText(card.keyword, canvas.width / 2, canvas.height / 2 + 60);
+
+  ctx.font = '28px "Inter", sans-serif';
+  ctx.fillStyle = 'rgba(240,245,240,0.45)';
+  ctx.fillText(card.description, canvas.width / 2, canvas.height / 2 + 120);
+
+  ctx.font = '22px "Inter", sans-serif';
+  ctx.fillStyle = 'rgba(240,245,240,0.25)';
+  ctx.fillText('MERRY CHRISTMAS', canvas.width / 2, canvas.height - 80);
+
+  canvas.toBlob(function(blob) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'TikTok_' + card.keyword + '_Wallpaper.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Wallpaper saved!');
+  }, 'image/png');
+}
+
+/* ========== SHARE SHEET ========== */
+function openShareSheet() {
+  document.getElementById('shareOverlay').classList.add('active');
+}
+function closeShareSheet() {
+  document.getElementById('shareOverlay').classList.remove('active');
+}
+function handleShareClick(platform) {
+  closeShareSheet();
+  showToast('Shared to ' + platform + '!');
+}
+
+/* ========== TASKS ========== */
+function handleTask(type) {
+  var t = state.tasks[type];
+  if (t.current >= t.max) return;
+  t.current++;
+  if (t.chancesReward > 0) state.chances += t.chancesReward;
+
+  var messages = {
+    share: 'Event shared! +' + state.tasks.share.chancesReward + ' chance',
+    invite: 'Invitation sent! +' + state.tasks.invite.chancesReward + ' chances',
+    support: 'Support request sent! +' + state.tasks.support.chancesReward + ' chance',
+    send: 'Card sent to friend!'
+  };
+  showToast(messages[type]);
+  render();
+}
+
+/* ========== TOAST ========== */
+function showToast(msg) {
+  var toast = document.getElementById('toast');
+  toast.innerHTML = SVG_ICONS.checkCircle + ' ' + msg;
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 2500);
+}
+
+/* ========== SNOWFLAKES — SVG-based ========== */
+function createSnowflakes() {
+  var container = document.getElementById('snowflakes');
+  container.innerHTML = '';
+  for (var i = 0; i < 18; i++) {
+    var flake = document.createElement('div');
+    flake.className = 'snowflake';
+    var size = 8 + Math.random() * 12;
+    // Simple dot or small snowflake SVG
+    if (Math.random() > 0.5) {
+      flake.innerHTML = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
+    } else {
+      flake.innerHTML = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 10 10"><circle cx="5" cy="5" r="3" fill="#fff"/></svg>';
+    }
+    flake.style.left = Math.random() * 100 + '%';
+    flake.style.opacity = 0.15 + Math.random() * 0.3;
+    flake.style.animationDuration = (5 + Math.random() * 6) + 's';
+    flake.style.animationDelay = (Math.random() * 5) + 's';
+    container.appendChild(flake);
+  }
+}
+
+/* ========== CONFETTI ========== */
+function createConfetti() {
+  var container = document.getElementById('confettiContainer');
+  container.innerHTML = '';
+  var colors = ['#D42B2B', '#FFD700', '#FE2C55', '#D4A853', '#FFFFFF', '#2D6B30'];
+  for (var i = 0; i < 40; i++) {
+    var piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    var size = 4 + Math.random() * 8;
+    var isCircle = Math.random() > 0.5;
+    piece.style.width = size + 'px';
+    piece.style.height = (isCircle ? size : size * 1.5) + 'px';
+    piece.style.borderRadius = isCircle ? '50%' : '2px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+    piece.style.animationDelay = (Math.random() * 0.5) + 's';
+    container.appendChild(piece);
+  }
+  setTimeout(function() { container.innerHTML = ''; }, 4000);
+}
+
+/* ========== KEYBOARD NAVIGATION ========== */
+document.addEventListener('keydown', function(e) {
+  // ESC to close modals/overlays
+  if (e.key === 'Escape') {
+    if (document.getElementById('shareOverlay').classList.contains('active')) {
+      closeShareSheet();
+    } else if (document.getElementById('resultModal').classList.contains('active')) {
+      closeResult();
+    } else if (document.getElementById('flipPage').classList.contains('active')) {
+      closeFlipPage();
+    }
+  }
+});
+
+/* ========== INIT ========== */
+render();
+</script>
+</body>
+</html>
